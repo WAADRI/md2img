@@ -7,7 +7,7 @@
 
 专为 AI 中转站 / 聊天机器人场景设计:把大模型输出的 Markdown —— 包括 **LaTeX 数学公式、代码高亮、表格、Mermaid 图表、任务列表、`<think>` 思考过程** 等 —— 渲染成一张精美的分享图,通过 API 直接返回图片字节。渲染基于真实浏览器排版引擎(与 NextChat 等网页端渲染同源的 markdown-it + KaTeX + highlight.js 方案),所见即所得。
 
-![示例](test/out/sample-light.png)
+![md2img 渲染示例:LaTeX 公式 / 代码高亮 / 表格 / Mermaid 完整展示](docs/sample-light.png)
 
 ## ✨ 特性
 
