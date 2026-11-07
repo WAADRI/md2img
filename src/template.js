@@ -134,7 +134,7 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   --th-bg:#f6f8fa; --table-border:#d8dee4; --table-stripe:rgba(60,80,120,.045);
   --code-bg:#f6f8fa; --code-border:#e4e9ee;
   --heading-border:#d8dee4;
-  --shadow:0 1px 2px rgba(31,35,40,.05),0 16px 48px rgba(31,35,40,.13);
+  --shadow:0 1px 2px rgba(31,35,40,.05),0 10px 28px rgba(31,35,40,.10);
   --page-grad:radial-gradient(1200px 480px at 18% -4%,#e9eef7 0%,rgba(233,238,247,0) 60%),linear-gradient(165deg,#f4f6fa 0%,#e3e8f0 100%);
 }
 .theme-dark{
@@ -146,19 +146,19 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   --th-bg:#151b23; --table-border:#3d444d; --table-stripe:rgba(200,210,230,.04);
   --code-bg:#151b23; --code-border:#2b3138;
   --heading-border:#2b3138;
-  --shadow:0 1px 2px rgba(0,0,0,.5),0 18px 56px rgba(0,0,0,.55);
+  --shadow:0 1px 2px rgba(0,0,0,.5),0 12px 32px rgba(0,0,0,.5);
   --page-grad:radial-gradient(1200px 480px at 18% -4%,#10161f 0%,rgba(16,22,31,0) 60%),linear-gradient(165deg,#0b0f16 0%,#0d1117 100%);
 }
 
 #capture{font-family:var(--font-body)}
 
-/* card 模式:渐变底 + 圆角卡片 */
-.frame-card{padding:56px;background:var(--page-grad)}
+/* 边缘留白:三种模式统一由 --margin 控制,保证边框宽度一致 */
+.frame-card{padding:var(--margin);background:var(--page-grad)}
 .frame-card .card{background:var(--card-bg);border-radius:18px;box-shadow:var(--shadow);border:1px solid var(--border-soft)}
 /* plain 模式:纯色背景直出 */
-.frame-plain{background:var(--card-bg)}
-/* transparent 模式:透明背景(png) */
-.frame-transparent{background:transparent}
+.frame-plain{padding:var(--margin);background:var(--card-bg)}
+/* transparent 模式:透明背景(png),放到非白底上才能看出区别 */
+.frame-transparent{padding:var(--margin);background:transparent}
 
 .card{padding:var(--pad);overflow:hidden}
 
@@ -234,8 +234,6 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 `;
 
 // ---------------------------------------------------------------- 页面组装
-
-const CARD_MARGIN = 56; // card 模式四周留白(渐变背景露出)
 
 function escapeHtml(s) {
   return String(s)
@@ -367,7 +365,8 @@ export function buildPage({ bodyHtml, opts, hasMermaid }) {
   let frame = opts.frame;
   if (frame === 'transparent' && opts.format !== 'png') frame = 'plain';
 
-  const widthCss = frame === 'card' ? `${opts.width + CARD_MARGIN * 2}px` : `${opts.width}px`;
+  // 三种模式统一:图片宽 = 内容宽 + 2*margin(外圈留白),文字列宽 = 内容宽 - 2*padding
+  const widthCss = `${opts.width + opts.margin * 2}px`;
 
   const bgColorStyle = opts.bgColor ? `--page-grad:${escapeHtml(opts.bgColor)};` : '';
 
@@ -397,7 +396,7 @@ export function buildPage({ bodyHtml, opts, hasMermaid }) {
 ${head}
 </head>
 <body>
-<div id="capture" class="frame-${frame} ${theme}" style="width:${widthCss};font-size:${opts.fontSize}px;--pad:${opts.padding}px;${bgColorStyle}">
+<div id="capture" class="frame-${frame} ${theme}" style="width:${widthCss};font-size:${opts.fontSize}px;--pad:${opts.padding}px;--margin:${opts.margin}px;${bgColorStyle}">
   <div class="card">
     ${titleBar}
     <div class="md-body">${bodyHtml}</div>

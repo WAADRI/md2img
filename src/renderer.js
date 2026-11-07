@@ -156,9 +156,8 @@ export async function renderImage({ html, opts }) {
 
   try {
     return await withPage(async (page) => {
-      const CARD_MARGIN = 56;
-      const pageWidth =
-        opts.frame === 'card' ? opts.width + CARD_MARGIN * 2 : opts.width;
+      // 三种 frame 统一:视口宽 = 内容宽 + 2*margin(外圈留白)
+      const pageWidth = opts.width + opts.margin * 2;
       let scale = opts.scale;
 
       await page.setViewport({ width: pageWidth, height: 900, deviceScaleFactor: scale });

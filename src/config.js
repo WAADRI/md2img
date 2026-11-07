@@ -88,6 +88,7 @@ export function normalizeOptions(input = {}) {
   o.scale = pickInt('scale', 2, 1, 4);
   o.quality = pickInt('quality', 90, 10, 100);
   o.padding = pickInt('padding', 56, 0, 200);
+  o.margin = pickInt('margin', 24, 0, 200);
   o.fontSize = pickInt('fontSize', 15, 10, 32);
   o.title = pickStr('title', '', 300);
   o.footer = pickStr('footer', '', 300);

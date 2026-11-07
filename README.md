@@ -68,8 +68,9 @@ curl -X POST "http://localhost:8307/api/render?theme=dark&scale=2" \
 | --- | --- | --- | --- |
 | `markdown` | string | (必填) | Markdown 内容,兼容 `md` / `content` / `text` 字段名 |
 | `theme` | string | `light` | `light` / `dark` |
-| `frame` | string | `card` | `card` 渐变背景+圆角卡片 / `plain` 纯色直出 / `transparent` 透明背景(仅 PNG);兼容布尔 `card` |
+| `frame` | string | `card` | `card` 渐变底+圆角卡片 / `plain` 纯色直出 / `transparent` 透明背景(仅 PNG,放到非白底上才能看出与 plain 的区别);兼容布尔 `card` |
 | `width` | number | `800` | 内容宽度(px,200-3840) |
+| `margin` | number | `24` | 外圈留白(px):card 模式即渐变环宽,三种模式**边缘到内容距离一致**(实际距离 = margin + padding) |
 | `scale` | number | `2` | 清晰度倍率(1-4),2x 即 Retina |
 | `format` | string | `png` | `png` / `jpeg` / `webp` |
 | `quality` | number | `90` | JPEG/WebP 质量(10-100) |

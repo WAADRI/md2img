@@ -51,6 +51,7 @@ footer{padding:6px 20px;border-top:1px solid var(--border);color:var(--muted);fo
       <select id="frame"><option value="card">卡片 card</option><option value="plain">纯色 plain</option><option value="transparent">透明 transparent</option></select>
     </label>
     <label class="ctl">宽度 <input type="number" id="width" value="800" min="200" max="3840" step="20" style="width:72px"></label>
+    <label class="ctl">边距 <input type="number" id="margin" value="24" min="0" max="200" step="4" style="width:60px"></label>
     <label class="ctl">倍率
       <select id="scale"><option value="1">1x</option><option value="2" selected>2x</option><option value="3">3x</option></select>
     </label>
@@ -144,6 +145,7 @@ async function render() {
         theme: $('theme').value,
         frame: $('frame').value,
         width: Number($('width').value) || 800,
+        margin: Number($('margin').value),
         scale: Number($('scale').value) || 2,
         format: $('format').value,
         title: $('title').value,
