@@ -73,7 +73,7 @@ curl -X POST "http://localhost:8307/api/render?theme=dark&scale=2" \
 | `scale` | number | `2` | 清晰度倍率(1-4),2x 即 Retina |
 | `format` | string | `png` | `png` / `jpeg` / `webp` |
 | `quality` | number | `90` | JPEG/WebP 质量(10-100) |
-| `padding` | number | `40` | 卡片内边距(px) |
+| `padding` | number | `56` | 卡片内边距(px) |
 | `fontSize` | number | `15` | 正文字号(px) |
 | `title` | string | 空 | 顶部标题(🤖 前缀);Markdown 的 YAML frontmatter `title` 会自动填入 |
 | `footer` | string | 空 | 底部水印文字(右下角固定显示 MD2IMG) |

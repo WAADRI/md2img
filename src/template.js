@@ -397,7 +397,7 @@ export function buildPage({ bodyHtml, opts, hasMermaid }) {
 ${head}
 </head>
 <body>
-<div id="capture" class="frame-${frame} ${theme}" style="width:${widthCss};${bgColorStyle}">
+<div id="capture" class="frame-${frame} ${theme}" style="width:${widthCss};font-size:${opts.fontSize}px;--pad:${opts.padding}px;${bgColorStyle}">
   <div class="card">
     ${titleBar}
     <div class="md-body">${bodyHtml}</div>
