@@ -78,7 +78,7 @@ curl -X POST "http://localhost:8307/api/render?theme=dark&scale=2" \
 | `fontSize` | number | `15` | 正文字号(px) |
 | `title` | string | 空 | 顶部标题(🤖 前缀);Markdown 的 YAML frontmatter `title` 会自动填入 |
 | `footer` | string | 空 | 底部水印文字(右下角固定显示 MD2IMG) |
-| `bgColor` | string | 主题默认 | 自定义背景色,支持 `#hex`、`rgb()`、`linear-gradient(...)` |
+| `bgColor` | string | 主题默认 | 自定义边框颜色:card 模式替换渐变环;plain 模式作为外围色环(内容面板保持主题底色);支持 `#hex`、`rgb()`、`linear-gradient(...)` |
 | `codeTheme` | string | 随主题 | highlight.js 主题名,如 `github`、`github-dark`、`atom-one-dark`、`nord`… |
 | `breaks` | bool | `true` | 单换行是否转为 `<br>`(聊天风格);关闭则遵循标准 Markdown |
 | `math` | bool | `true` | 是否渲染 LaTeX 公式 |

@@ -155,8 +155,9 @@ body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 /* 边缘留白:三种模式统一由 --margin 控制,保证边框宽度一致 */
 .frame-card{padding:var(--margin);background:var(--page-grad)}
 .frame-card .card{background:var(--card-bg);border-radius:18px;box-shadow:var(--shadow);border:1px solid var(--border-soft)}
-/* plain 模式:纯色背景直出 */
-.frame-plain{padding:var(--margin);background:var(--card-bg)}
+/* plain 模式:纯色背景直出;提供 bgColor 时外围变为自定义色环,内容区保持面板底色 */
+.frame-plain{padding:var(--margin);background:var(--frame-bg,var(--card-bg))}
+.frame-plain.frame-tinted .card{background:var(--card-bg);border-radius:10px}
 /* transparent 模式:透明背景(png),放到非白底上才能看出区别 */
 .frame-transparent{padding:var(--margin);background:transparent}
 
@@ -368,7 +369,9 @@ export function buildPage({ bodyHtml, opts, hasMermaid }) {
   // 三种模式统一:图片宽 = 内容宽 + 2*margin(外圈留白),文字列宽 = 内容宽 - 2*padding
   const widthCss = `${opts.width + opts.margin * 2}px`;
 
-  const bgColorStyle = opts.bgColor ? `--page-grad:${escapeHtml(opts.bgColor)};` : '';
+  // 自定义颜色:card 模式替换渐变环,plain 模式作为外围色环(内容面板保持主题底色)
+  const bgColorStyle = opts.bgColor ? `--page-grad:${escapeHtml(opts.bgColor)};--frame-bg:${escapeHtml(opts.bgColor)};` : '';
+  const tintedClass = frame === 'plain' && opts.bgColor ? ' frame-tinted' : '';
 
   const mermaidTheme = opts.mermaidTheme || (opts.theme === 'dark' ? 'dark' : 'default');
 
@@ -396,7 +399,7 @@ export function buildPage({ bodyHtml, opts, hasMermaid }) {
 ${head}
 </head>
 <body>
-<div id="capture" class="frame-${frame} ${theme}" style="width:${widthCss};font-size:${opts.fontSize}px;--pad:${opts.padding}px;--margin:${opts.margin}px;${bgColorStyle}">
+<div id="capture" class="frame-${frame}${tintedClass} ${theme}" style="width:${widthCss};font-size:${opts.fontSize}px;--pad:${opts.padding}px;--margin:${opts.margin}px;${bgColorStyle}">
   <div class="card">
     ${titleBar}
     <div class="md-body">${bodyHtml}</div>

@@ -38,6 +38,26 @@ textarea{flex:1;resize:none;border:0;outline:none;background:var(--bg);color:var
 footer{padding:6px 20px;border-top:1px solid var(--border);color:var(--muted);font-size:12px;display:flex;gap:16px}
 .spin{display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite;vertical-align:-2px}
 @keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---- 手机端适配:上下堆叠 + 控制栏横向滑动 ---- */
+@media (max-width: 860px){
+  header{padding:10px 12px;gap:8px}
+  .logo{font-size:14px}
+  .logo small{display:none}
+  .controls{width:100%;margin-left:0;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none}
+  .controls::-webkit-scrollbar{display:none}
+  .controls>*{flex:0 0 auto}
+  .controls button{order:-1}
+  #btn-render{margin-right:6px}
+  button{padding:8px 14px}
+  main{flex-direction:column}
+  .editor{width:100%;min-width:0;height:42%;border-right:0;border-bottom:1px solid var(--border)}
+  .editor .bar{padding:6px 12px}
+  textarea{padding:10px;font-size:12px}
+  .preview .imgwrap{padding:10px}
+  .preview .bar{padding:6px 12px;flex-wrap:wrap;gap:8px}
+  footer{display:none}
+}
 </style>
 </head>
 <body>
