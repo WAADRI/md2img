@@ -1,0 +1,18 @@
+services:
+  md2img:
+    # 优先使用 GHCR 预构建镜像;本地无网络时注释 image、保留 build 自行构建
+    image: ghcr.io/waadri/md2img:latest
+    build: .
+    ports:
+      - "8307:8307"
+    environment:
+      - PORT=8307
+      # - API_KEY=your-secret
+      # - CONCURRENCY=4
+      # - MAX_BODY_KB=2048
+    restart: unless-stopped
+    # 限制资源可选:
+    # deploy:
+    #   resources:
+    #     limits:
+    #       memory: 1g

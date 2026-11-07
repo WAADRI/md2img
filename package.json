@@ -1,0 +1,37 @@
+{
+  "name": "md2img",
+  "version": "1.0.0",
+  "description": "将 Markdown(AI 回复)完美渲染为图片的 HTTP 服务:支持 LaTeX 数学公式、代码高亮、表格、Mermaid 图表等,提供 API 接口调用。",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "test": "node test/api.test.mjs"
+  },
+  "engines": {
+    "node": ">=18.17"
+  },
+  "keywords": [
+    "markdown",
+    "markdown-to-image",
+    "katex",
+    "latex",
+    "mermaid",
+    "screenshot",
+    "ai",
+    "openai"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.21.2",
+    "highlight.js": "^11.11.1",
+    "katex": "^0.16.21",
+    "markdown-it": "^14.1.0",
+    "markdown-it-emoji": "^3.0.0",
+    "markdown-it-task-lists": "^2.1.1",
+    "mermaid": "^11.4.1",
+    "puppeteer": "^23.11.1",
+    "sanitize-html": "^2.14.0"
+  }
+}

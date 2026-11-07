@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MD2IMG · Markdown 转图片 Playground</title>
+<style>
+:root{
+  --bg:#0d1117;--bg2:#161b22;--bg3:#1c2129;--border:#30363d;--text:#e6edf3;--muted:#8b949e;
+  --accent:#4493f8;--accent2:#3fb950;--danger:#f85149;--radius:10px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.6 -apple-system,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--border);background:var(--bg2);flex-wrap:wrap}
+.logo{font-weight:700;font-size:16px;display:flex;align-items:center;gap:8px}
+.logo .dot{width:10px;height:10px;border-radius:50%;background:linear-gradient(135deg,#4493f8,#3fb950)}
+.logo small{color:var(--muted);font-weight:400}
+.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-left:auto}
+select,input[type=number],input[type=text]{background:var(--bg3);color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:13px;outline:none}
+select:focus,input:focus{border-color:var(--accent)}
+label.ctl{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:12px}
+button{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-weight:600}
+button:hover{filter:brightness(1.1)}
+button.ghost{background:var(--bg3);border:1px solid var(--border);color:var(--text);font-weight:400}
+button:disabled{opacity:.5;cursor:not-allowed}
+main{flex:1;display:flex;min-height:0}
+.editor{width:44%;min-width:320px;display:flex;flex-direction:column;border-right:1px solid var(--border)}
+.editor .bar{padding:6px 14px;color:var(--muted);font-size:12px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+textarea{flex:1;resize:none;border:0;outline:none;background:var(--bg);color:var(--text);padding:14px;font:13px/1.7 "Cascadia Code",Consolas,"Microsoft YaHei",monospace}
+.preview{flex:1;display:flex;flex-direction:column;background:
+  repeating-conic-gradient(#141a22 0% 25%, #0f141b 0% 50%) 0 0/24px 24px}
+.preview .bar{padding:6px 14px;color:var(--muted);font-size:12px;display:flex;gap:14px;align-items:center;border-bottom:1px solid var(--border);background:var(--bg2)}
+.preview .imgwrap{flex:1;overflow:auto;padding:20px;display:flex;align-items:flex-start;justify-content:center}
+.preview img{max-width:100%;height:auto;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,.5);background:#fff}
+.placeholder{color:var(--muted);margin:auto;text-align:center;font-size:13px}
+.err{display:none;margin:10px 14px;padding:10px 14px;background:rgba(248,81,73,.12);border:1px solid rgba(248,81,73,.4);color:#ffa198;border-radius:8px;font-size:13px;white-space:pre-wrap}
+footer{padding:6px 20px;border-top:1px solid var(--border);color:var(--muted);font-size:12px;display:flex;gap:16px}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp 1s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><span class="dot"></span>MD2IMG <small>Markdown 转图片服务</small></div>
+  <div class="controls">
+    <label class="ctl">主题
+      <select id="theme"><option value="light">浅色 light</option><option value="dark">深色 dark</option></select>
+    </label>
+    <label class="ctl">边框
+      <select id="frame"><option value="card">卡片 card</option><option value="plain">纯色 plain</option><option value="transparent">透明 transparent</option></select>
+    </label>
+    <label class="ctl">宽度 <input type="number" id="width" value="800" min="200" max="3840" step="20" style="width:72px"></label>
+    <label class="ctl">倍率
+      <select id="scale"><option value="1">1x</option><option value="2" selected>2x</option><option value="3">3x</option></select>
+    </label>
+    <label class="ctl">格式
+      <select id="format"><option value="png">PNG</option><option value="jpeg">JPEG</option><option value="webp">WebP</option></select>
+    </label>
+    <label class="ctl">标题 <input type="text" id="title" placeholder="可选" style="width:110px"></label>
+    <button id="btn-render">生成图片</button>
+    <button id="btn-download" class="ghost" disabled>下载</button>
+    <button id="btn-sample" class="ghost">加载示例</button>
+    <button id="btn-curl" class="ghost">复制 cURL</button>
+  </div>
+</header>
+<main>
+  <section class="editor">
+    <div class="bar"><span>Markdown 源文</span><span id="char-count">0 字符</span></div>
+    <textarea id="md" spellcheck="false" placeholder="在此粘贴 Markdown / AI 回复内容…"></textarea>
+  </section>
+  <section class="preview">
+    <div class="err" id="err"></div>
+    <div class="bar"><span id="status">就绪</span><span id="meta"></span></div>
+    <div class="imgwrap"><img id="img" alt="渲染结果" hidden><div class="placeholder" id="ph">点击「生成图片」预览渲染效果<br>支持 LaTeX 公式 / 代码高亮 / 表格 / Mermaid</div></div>
+  </section>
+</main>
+<footer>
+  <span>POST /api/render · JSON: {"markdown": "...", "theme": "light"}</span>
+  <span>GET /render?md=hello **world**</span>
+  <span id="ver"></span>
+</footer>
+<script>
+const $ = (id) => document.getElementById(id);
+let lastBlobUrl = null, lastBlob = null;
+
+const SAMPLE = `# AI 助手回复示例
+
+你好!这里是 **MD2IMG** 的功能演示 —— 包含公式、代码、表格与图表的完整渲染。
+
+## 数学公式
+
+质能方程 $E = mc^2$,欧拉公式 $$e^{i\\pi} + 1 = 0$$,高斯积分:
+
+$$
+\\int_{-\\infty}^{\\infty} e^{-x^2}\\,dx = \\sqrt{\\pi}
+$$
+
+## 代码块
+
+\`\`\`python
+def quick_sort(arr):
+    if len(arr) <= 1: return arr
+    pivot = arr[len(arr)//2]
+    return quick_sort([x for x in arr if x < pivot]) + \\
+           [x for x in arr if x == pivot] + \\
+           quick_sort([x for x in arr if x > pivot])
+\`\`\`
+
+## 表格
+
+| 模型 | 上下文 | 价格 |
+| --- | --- | --- |
+| GPT-4o | 128K | $2.50 / $10.00 |
+| DeepSeek-V3 | 64K | ¥1.00 / ¥2.00 |
+
+\`\`\`mermaid
+graph LR
+    A[用户请求] --> B{MD2IMG}
+    B --> C[Markdown 解析]
+    B --> D[KaTeX 公式]
+    B --> E[代码高亮]
+    C & D & E --> F[🖼 生成图片]
+\`\`\`
+
+> **提示**:由 MD2IMG 渲染生成 🎉
+`;
+
+$('md').addEventListener('input', () => { $('char-count').textContent = $('md').value.length + ' 字符'; });
+
+async function render() {
+  const md = $('md').value;
+  if (!md.trim()) return;
+  $('btn-render').disabled = true;
+  $('status').innerHTML = '<span class="spin"></span> 正在渲染…';
+  $('err').style.display = 'none';
+  const t0 = performance.now();
+  try {
+    const resp = await fetch('/api/render', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        markdown: md,
+        theme: $('theme').value,
+        frame: $('frame').value,
+        width: Number($('width').value) || 800,
+        scale: Number($('scale').value) || 2,
+        format: $('format').value,
+        title: $('title').value,
+      }),
+    });
+    if (!resp.ok) {
+      let msg = resp.status + ' ' + resp.statusText;
+      try { const j = await resp.json(); msg = j.error?.message || msg; if (j.error?.details) msg += '\n' + j.error.details.join('\n'); } catch {}
+      throw new Error(msg);
+    }
+    const blob = await resp.blob();
+    if (lastBlobUrl) URL.revokeObjectURL(lastBlobUrl);
+    lastBlob = blob;
+    lastBlobUrl = URL.createObjectURL(blob);
+    const img = $('img');
+    img.src = lastBlobUrl;
+    img.hidden = false;
+    $('ph').style.display = 'none';
+    $('btn-download').disabled = false;
+    const ms = Math.round(performance.now() - t0);
+    $('status').textContent = '完成';
+    $('meta').textContent = `${blob.size && (blob.size/1024).toFixed(1)}KB · ${resp.headers.get('X-Md2img-Width')||'?'}×${resp.headers.get('X-Md2img-Height')||'?'}px · ${ms}ms`;
+  } catch (e) {
+    $('err').textContent = '渲染失败:' + e.message;
+    $('err').style.display = 'block';
+    $('status').textContent = '失败';
+  } finally {
+    $('btn-render').disabled = false;
+  }
+}
+
+$('btn-render').onclick = render;
+$('md').addEventListener('keydown', (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') render();
+});
+$('btn-download').onclick = () => {
+  if (!lastBlob) return;
+  const a = document.createElement('a');
+  a.href = lastBlobUrl;
+  a.download = `md2img-${Date.now()}.${$('format').value === 'jpeg' ? 'jpg' : $('format').value}`;
+  a.click();
+};
+$('btn-sample').onclick = () => { $('md').value = SAMPLE; $('char-count').textContent = SAMPLE.length + ' 字符'; };
+$('btn-curl').onclick = async () => {
+  const body = JSON.stringify({ markdown: $('md').value.slice(0, 2000), theme: $('theme').value, width: Number($('width').value), scale: Number($('scale').value), format: $('format').value }, null, 2);
+  const cmd = `curl -X POST http://localhost:${location.port}/api/render \\\n  -H "Content-Type: application/json" \\\n  -d '${body.replace(/'/g, "'\\''")}' \\\n  --output result.png`;
+  try { await navigator.clipboard.writeText(cmd); $('status').textContent = 'cURL 已复制'; } catch { $('status').textContent = '复制失败,请手动复制'; }
+};
+
+fetch('/health').then(r => r.json()).then(j => { $('ver').textContent = `v${j.version} · browser: ${j.browser}`; }).catch(() => {});
+</script>
+</body>
+</html>
