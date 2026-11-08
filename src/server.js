@@ -135,18 +135,26 @@ export function buildApp() {
     }
 
     const { page, t0 } = buildResponsePayload(markdown, opts);
-    const result = await renderImage({ html: page.html, opts });
+    const limit = opts.maxImageSize;
+    const maxSizeOf = (r) => r.buffers.reduce((max, b) => Math.max(max, b.length), 0);
 
-    // 单张图片体积上限:任一分片超限即拒绝
-    const oversized = result.buffers.reduce((max, b) => Math.max(max, b.length), 0);
-    if (oversized > opts.maxImageSize) {
+    let result = await renderImage({ html: page.html, opts });
+
+    // 超限自动降 scale 重渲(体积约与像素数成正比,按 √比例 估算并留 10% 余量),scale 到 1 仍超限才拒绝
+    let attempts = 0;
+    while (maxSizeOf(result) > limit && result.scale > 1 && attempts < 4) {
+      attempts++;
+      const fitted = Math.max(1, Math.floor(result.scale * Math.sqrt(limit / maxSizeOf(result)) * 0.9 * 100) / 100);
+      const nextScale = fitted >= result.scale ? Math.max(1, result.scale - 0.5) : fitted;
+      result = await renderImage({ html: page.html, opts: { ...opts, scale: nextScale } });
+    }
+
+    const oversized = maxSizeOf(result);
+    if (oversized > limit) {
+      const hint = result.scale > 1 ? `scale 已自动降至 ${result.scale} 仍超限;` : 'scale 已为最低值 1;';
       return sendError(
         res, 413, 'image_too_large',
-        `生成的图片 ${fmtMB(oversized)} 超过单图上限 ${fmtMB(opts.maxImageSize)}`,
-        [
-          '可降低 scale(清晰度倍率)、width 或 quality(JPEG/WebP)',
-          '内容过长时可精简内容,或调大 maxImageSize(单位:字节)',
-        ],
+        `生成的图片 ${fmtMB(oversized)} 超过单图上限 ${fmtMB(limit)}(${hint}可降低 width、精简内容或调大 maxImageSize)`,
       );
     }
 
@@ -157,12 +165,14 @@ export function buildApp() {
     const meta = {
       width: result.width,
       height: result.height,
+      scale: result.scale,
       format: opts.format,
       elapsedMs: elapsed,
     };
 
     res.set('X-Md2img-Width', String(result.width));
     res.set('X-Md2img-Height', String(result.height));
+    res.set('X-Md2img-Scale', String(result.scale));
     res.set('X-Md2img-Elapsed-Ms', String(elapsed));
 
     // 多分片(超高内容):只能以 JSON 返回

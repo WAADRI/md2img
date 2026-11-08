@@ -123,21 +123,28 @@ await postRender({ markdown: '## 你好\n\n$e^{i\\pi}+1=0$', return: 'base64' },
   record('未知接口 -> 404', r4.status === 404, `HTTP ${r4.status}`);
 }
 
-// 11. maxImageSize 单图体积上限
+// 11. maxImageSize 单图体积上限(超限自动降 scale,scale=1 仍超限才 413)
 {
   const r1 = await fetch(`${base}/api/render`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ markdown: sample, maxImageSize: 500000 }), // 样例图约 777KB,必超限
+    body: JSON.stringify({ markdown: sample, maxImageSize: 500000 }), // 样例图约 777KB@2x,触发自动降档
   });
-  const j1 = await r1.json().catch(() => ({}));
-  record('图片超限 -> 413', r1.status === 413 && j1.error?.code === 'image_too_large', `HTTP ${r1.status} ${j1.error?.message || ''}`);
+  const scale1 = r1.headers.get('x-md2img-scale');
+  record('超限自动降 scale -> 200', r1.status === 200 && Number(scale1) < 2, `HTTP ${r1.status} scale=${scale1}`);
   const r2 = await fetch(`${base}/api/render`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ markdown: sample, maxImageSize: 100000 }), // scale 降到 1 也装不下
+  });
+  const j2 = await r2.json().catch(() => ({}));
+  record('scale=1 仍超限 -> 413', r2.status === 413 && j2.error?.code === 'image_too_large', `HTTP ${r2.status} ${j2.error?.message || ''}`);
+  const r3 = await fetch(`${base}/api/render`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ markdown: '## 小图\n\n$e^{i\\pi}+1=0$', maxImageSize: 10485760 }),
   });
-  record('未超限 -> 200', r2.status === 200, `HTTP ${r2.status}`);
+  record('未超限 -> 200', r3.status === 200, `HTTP ${r3.status}`);
 }
 
 console.log('\n' + (failed ? `❌ ${failed} 项失败` : '🎉 全部通过') + ` · 图片输出目录: test/out/\n`);

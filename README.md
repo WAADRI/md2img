@@ -90,7 +90,7 @@ curl -X POST "http://localhost:8307/api/render?theme=dark&scale=2" \
 | `emoji` | bool | `true` | 解析 `:smile:` 短代码 |
 | `sanitize` | bool | `true` | 净化内嵌 HTML(白名单);关闭则原样输出 |
 | `think` | string | `keep` | `<think>` 处理:`keep` 渲染为思考卡片 / `strip` 剔除 |
-| `maxImageSize` | number | `10485760` | 单张生成图片的最大体积(**字节**,10MB;服务端默认可用环境变量 `MAX_IMAGE_SIZE_MB` 调整),超过返回 413 |
+| `maxImageSize` | number | `10485760` | 单张生成图片的最大体积(**字节**,10MB;服务端默认可用环境变量 `MAX_IMAGE_SIZE_MB` 调整)。超限时**自动按比例降低 scale 重渲**,`scale` 降到 1 仍超限才返回 413;实际使用的倍率见响应头 `X-Md2img-Scale` |
 | `imageTimeout` | number | `15000` | 等待远程图片加载的超时(ms),超时后占位符替代 |
 | `return` | string | `binary` | `binary` 图片字节 / `base64` JSON 包装 |
 | `filename` | string | 空 | 设置后响应带 `Content-Disposition` 附件下载 |
