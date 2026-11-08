@@ -48,6 +48,8 @@ function contentDisposition(filename, mime) {
   return safe;
 }
 
+const fmtMB = (bytes) => `${(bytes / 1024 / 1024).toFixed(2)}MB`;
+
 // ---------------------------------------------------------------- 应用
 
 export function buildApp() {
@@ -134,6 +136,19 @@ export function buildApp() {
 
     const { page, t0 } = buildResponsePayload(markdown, opts);
     const result = await renderImage({ html: page.html, opts });
+
+    // 单张图片体积上限:任一分片超限即拒绝
+    const oversized = result.buffers.reduce((max, b) => Math.max(max, b.length), 0);
+    if (oversized > opts.maxImageSize) {
+      return sendError(
+        res, 413, 'image_too_large',
+        `生成的图片 ${fmtMB(oversized)} 超过单图上限 ${fmtMB(opts.maxImageSize)}`,
+        [
+          '可降低 scale(清晰度倍率)、width 或 quality(JPEG/WebP)',
+          '内容过长时可精简内容,或调大 maxImageSize(单位:字节)',
+        ],
+      );
+    }
 
     const elapsed = Date.now() - t0;
     const mime =

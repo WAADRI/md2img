@@ -123,6 +123,23 @@ await postRender({ markdown: '## 你好\n\n$e^{i\\pi}+1=0$', return: 'base64' },
   record('未知接口 -> 404', r4.status === 404, `HTTP ${r4.status}`);
 }
 
+// 11. maxImageSize 单图体积上限
+{
+  const r1 = await fetch(`${base}/api/render`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ markdown: sample, maxImageSize: 500000 }), // 样例图约 777KB,必超限
+  });
+  const j1 = await r1.json().catch(() => ({}));
+  record('图片超限 -> 413', r1.status === 413 && j1.error?.code === 'image_too_large', `HTTP ${r1.status} ${j1.error?.message || ''}`);
+  const r2 = await fetch(`${base}/api/render`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ markdown: '## 小图\n\n$e^{i\\pi}+1=0$', maxImageSize: 10485760 }),
+  });
+  record('未超限 -> 200', r2.status === 200, `HTTP ${r2.status}`);
+}
+
 console.log('\n' + (failed ? `❌ ${failed} 项失败` : '🎉 全部通过') + ` · 图片输出目录: test/out/\n`);
 server.close();
 process.exit(failed ? 1 : 0);

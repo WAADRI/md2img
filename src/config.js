@@ -19,6 +19,7 @@ export const serverConfig = {
   apiKey: process.env.API_KEY || '',
   concurrency: clamp(int(process.env.CONCURRENCY, 4), 1, 16),
   maxBodyKB: clamp(int(process.env.MAX_BODY_KB, 2048), 16, 20480),
+  maxImageSizeBytes: clamp(int(process.env.MAX_IMAGE_SIZE_MB, 10), 1, 200) * 1024 * 1024,
   renderTimeoutMs: clamp(int(process.env.RENDER_TIMEOUT_MS, 45000), 5000, 300000),
   imageTimeoutMs: clamp(int(process.env.IMAGE_TIMEOUT_MS, 15000), 1000, 60000),
   chromePath: process.env.CHROME_PATH || process.env.PUPPETEER_EXECUTABLE_PATH || '',
@@ -103,6 +104,8 @@ export function normalizeOptions(input = {}) {
   o.sanitize = pickBool('sanitize', true);
   o.return = pickEnum('return', ['binary', 'base64'], 'binary');
   o.imageTimeout = pickInt('imageTimeout', serverConfig.imageTimeoutMs, 1000, 60000);
+  // 单张生成图片的最大体积(字节),超限返回 413
+  o.maxImageSize = pickInt('maxImageSize', serverConfig.maxImageSizeBytes, 10000, 209715200);
 
   // 自定义背景色:仅放行常见安全格式(纯色 / 渐变)
   if (o.bgColor) {
